@@ -30,8 +30,26 @@
     <div class="container">
         <h2 class="text-center">📦 Ürün Fiyat Paneli</h2>
 
-        <input type="text" id="arama" class="form-control" placeholder="Ürün adında ara...">
+        <!-- Dosya Yükleme Formu -->
+        <form action="/yukle" method="post" enctype="multipart/form-data" class="mb-3 d-flex gap-2">
+            <input type="file" name="dosya" accept=".xlsx" class="form-control">
+            <button type="submit" class="btn btn-primary">📤 Dosyayı Yükle</button>
+        </form>
 
+        <!-- Flash Mesajlar -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for kategori, mesaj in messages %}
+                <div class="alert alert-{{ 'success' if kategori == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                    {{ mesaj }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- Arama Kutusu -->
+        <input type="text" id="arama" class="form-control mb-3" placeholder="Ürün adında ara...">
+
+        <!-- Tablo -->
         <div class="table-responsive">
             <table class="table table-bordered table-hover" id="urunTablosu">
                 <thead>
@@ -54,17 +72,21 @@
         </div>
     </div>
 
+    <!-- Filtreleme Script -->
     <script>
         const arama = document.getElementById('arama');
         arama.addEventListener('keyup', function () {
             const filtre = this.value.toLowerCase();
             const satirlar = document.querySelectorAll('#urunTablosu tbody tr');
-
             satirlar.forEach(satir => {
                 const urunAdi = satir.cells[0].textContent.toLowerCase();
                 satir.style.display = urunAdi.includes(filtre) ? '' : 'none';
             });
         });
     </script>
+
+    <!-- Bootstrap Script (Alert kapatmak için) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
