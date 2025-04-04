@@ -1,1 +1,4 @@
 .env
+urunler.xlsx
+__pycache__/
+*.pyc
