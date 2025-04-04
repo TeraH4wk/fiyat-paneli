@@ -1,13 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import pandas as pd
 import os
+from dotenv import load_dotenv  # .env dosyasını okumak için
+
+# .env dosyasını yükle
+load_dotenv()
 
 UPLOAD_KLASORU = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__)
-app.secret_key = "cok_gizli_bir_anahtar"
 
-KULLANICI_ADI = "admin"
-SIFRE = "1234"
+# Gizli bilgiler .env dosyasından geliyor
+app.secret_key = os.getenv("SECRET_KEY")
+KULLANICI_ADI = os.getenv("PANEL_KULLANICI")
+SIFRE = os.getenv("PANEL_SIFRE")
 
 @app.route("/", methods=["GET"])
 def index():
@@ -55,6 +60,5 @@ def yukle():
 
 # EN SONDA OLMALI
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
