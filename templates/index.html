@@ -54,20 +54,20 @@
             <table class="table table-bordered table-hover" id="urunTablosu">
                 <thead>
                     <tr>
-                        <th>Ürün Adı</th>
-                        <th>KDV Dahil Fiyat</th>
-                        <th>KDV Dahil Net Alış</th>
+                      {% for baslik in urunler[0].keys() %}
+                        <th>{{ baslik }}</th>
+                      {% endfor %}
                     </tr>
-                </thead>
-                <tbody>
+                  </thead>
+                  <tbody>
                     {% for urun in urunler %}
-                    <tr>
-                        <td>{{ urun['Ürün Adı'] }}</td>
-                        <td>{{ urun['KDV Dahil Fiyat'] }}</td>
-                        <td>{{ urun['KDV Dahil Net Alış'] }}</td>
-                    </tr>
+                      <tr>
+                        {% for deger in urun.values() %}
+                          <td>{{ deger }}</td>
+                        {% endfor %}
+                      </tr>
                     {% endfor %}
-                </tbody>
+                  </tbody>  
             </table>
         </div>
     </div>
