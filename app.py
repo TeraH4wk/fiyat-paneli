@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import pandas as pd
 import os
 from dotenv import load_dotenv  # .env dosyasını okumak için
+from datetime import datetime, timedelta
+
+
 
 # .env dosyasını yükle
 load_dotenv()
@@ -13,6 +16,10 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 KULLANICI_ADI = os.getenv("PANEL_KULLANICI")
 SIFRE = os.getenv("PANEL_SIFRE")
+# 🔧 Hatalı girişleri takip için
+YANLIS_GIRIS_SAYISI = {}
+ENGELLENEN_KULLANICILAR = {}
+
 
 @app.route("/", methods=["GET"])
 def index():
@@ -28,16 +35,41 @@ def index():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    kullanici_ip = request.remote_addr
+
+    # 🔧 IP engelli mi kontrol et
+    if kullanici_ip in ENGELLENEN_KULLANICILAR:
+        engel_zamani = ENGELLENEN_KULLANICILAR[kullanici_ip]
+        if datetime.now() < engel_zamani:
+            kalan_saniye = int((engel_zamani - datetime.now()).total_seconds())
+            dakika = kalan_saniye // 60
+            return render_template("login.html", hata=f"Çok fazla deneme! {dakika} dakika bekleyin.")
+        else:
+            # 🔧 Engel süresi dolduysa sil
+            del ENGELLENEN_KULLANICILAR[kullanici_ip]
+            YANLIS_GIRIS_SAYISI[kullanici_ip] = 0
+
     if request.method == "POST":
         kullanici = request.form.get("kullanici")
         sifre = request.form.get("sifre")
 
         if kullanici == KULLANICI_ADI and sifre == SIFRE:
             session["giris"] = True
+            YANLIS_GIRIS_SAYISI[kullanici_ip] = 0  # 🔧 Başarılı girişte sıfırla
             return redirect(url_for("index"))
         else:
-            return render_template("login.html", hata="Kullanıcı adı veya şifre yanlış!")
+            # 🔧 Hatalı girişleri say
+            YANLIS_GIRIS_SAYISI[kullanici_ip] = YANLIS_GIRIS_SAYISI.get(kullanici_ip, 0) + 1
+
+            if YANLIS_GIRIS_SAYISI[kullanici_ip] >= 5:
+                ENGELLENEN_KULLANICILAR[kullanici_ip] = datetime.now() + timedelta(minutes=5)
+                return render_template("login.html", hata="5 hatalı giriş! 5 dakika engellendiniz.")
+
+            kalan = 5 - YANLIS_GIRIS_SAYISI[kullanici_ip]
+            return render_template("login.html", hata=f"Hatalı giriş. {kalan} deneme hakkın kaldı.")
+
     return render_template("login.html")
+
 
 @app.route("/logout")
 def logout():
