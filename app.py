@@ -5,7 +5,7 @@ import json
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
-# Çevre değişkenlerini yükle
+# Ortam değişkenlerini yükle
 load_dotenv()
 
 UPLOAD_KLASORU = os.path.dirname(os.path.abspath(__file__))
@@ -14,11 +14,10 @@ KULLANICI_DOSYA_YOLU = os.path.join(UPLOAD_KLASORU, "kullanicilar.json")
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
-# Yanlış girişleri izleme
 YANLIS_GIRIS_SAYISI = {}
 ENGELLENEN_KULLANICILAR = {}
 
-# Varsayılan admin kullanıcısı
+# Eğer kullanıcı dosyası yoksa admin'i yaz
 if not os.path.exists(KULLANICI_DOSYA_YOLU):
     with open(KULLANICI_DOSYA_YOLU, "w") as f:
         json.dump([{"kullanici": os.getenv("PANEL_KULLANICI"), "sifre": os.getenv("PANEL_SIFRE")}], f)
@@ -33,30 +32,24 @@ def kullanici_dogrula(kullanici, sifre):
     return False
 
 
-@app.route("/admin")
+@app.route("/admin", methods=["GET", "POST"])
 def admin_panel():
     if session.get("giris") and session.get("kullanici") == os.getenv("PANEL_KULLANICI"):
+        if request.method == "POST":
+            yeni_kullanici = request.form.get("yeni_kullanici")
+            yeni_sifre = request.form.get("yeni_sifre")
+
+            with open(KULLANICI_DOSYA_YOLU, "r") as f:
+                veriler = json.load(f)
+
+            veriler.append({"kullanici": yeni_kullanici, "sifre": yeni_sifre})
+
+            with open(KULLANICI_DOSYA_YOLU, "w") as f:
+                json.dump(veriler, f)
+
+            flash("✅ Yeni kullanıcı eklendi", "success")
+
         return render_template("admin.html")
-    else:
-        return redirect(url_for("login"))
-
-
-@app.route("/admin/add_user", methods=["POST"])
-def add_user():
-    if session.get("giris") and session.get("kullanici") == os.getenv("PANEL_KULLANICI"):
-        yeni_kullanici = request.form.get("yeni_kullanici")
-        yeni_sifre = request.form.get("yeni_sifre")
-
-        with open(KULLANICI_DOSYA_YOLU, "r") as f:
-            veriler = json.load(f)
-
-        veriler.append({"kullanici": yeni_kullanici, "sifre": yeni_sifre})
-
-        with open(KULLANICI_DOSYA_YOLU, "w") as f:
-            json.dump(veriler, f)
-
-        flash("Yeni kullanıcı eklendi", "success")
-        return redirect(url_for("admin_panel"))
     else:
         return redirect(url_for("login"))
 
