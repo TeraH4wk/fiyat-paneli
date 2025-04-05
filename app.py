@@ -71,7 +71,17 @@ def index():
         df["%5 Kâr"] = (df["KDV Dahil Net Alış"] * 1.05).round(2).astype(str) + " ₺"
         df["%10 Kâr"] = (df["KDV Dahil Net Alış"] * 1.10).round(2).astype(str) + " ₺"
         veriler = df.to_dict(orient="records")
-        return render_template("index.html", urunler=veriler)
+
+        # Sayfalandırma
+        sayfa = int(request.args.get("sayfa", 1))
+        sayfa_basi = 50
+        basla = (sayfa - 1) * sayfa_basi
+        bitir = basla + sayfa_basi
+        sayfa_verileri = veriler[basla:bitir]
+        toplam_sayfa = (len(veriler) + sayfa_basi - 1) // sayfa_basi
+
+        return render_template("index.html", urunler=sayfa_verileri, sayfa=sayfa, toplam_sayfa=toplam_sayfa)
+
     except Exception as e:
         return f"Hata oluştu: {e}"
 

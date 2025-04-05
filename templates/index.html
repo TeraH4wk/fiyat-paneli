@@ -58,6 +58,30 @@
     </div>
 </div>
 
+<!-- Sayfalandırma -->
+<nav aria-label="Sayfa Geçişi">
+    <ul class="pagination justify-content-center mt-4">
+      {% if sayfa > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="/?sayfa={{ sayfa - 1 }}">Önceki</a>
+        </li>
+      {% endif %}
+      
+      {% for s in range(1, toplam_sayfa + 1) %}
+        <li class="page-item {% if s == sayfa %}active{% endif %}">
+          <a class="page-link" href="/?sayfa={{ s }}">{{ s }}</a>
+        </li>
+      {% endfor %}
+      
+      {% if sayfa < toplam_sayfa %}
+        <li class="page-item">
+          <a class="page-link" href="/?sayfa={{ sayfa + 1 }}">Sonraki</a>
+        </li>
+      {% endif %}
+    </ul>
+</nav>
+  
+
 <script>
     const arama = document.getElementById('arama');
     arama.addEventListener('keyup', function () {
