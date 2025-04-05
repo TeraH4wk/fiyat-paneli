@@ -48,6 +48,9 @@
 </head>
 <body>
     <div class="container">
+        {% if session['kullanici'] == 'admin' %}
+            <a href="/admin" class="btn btn-warning float-end mb-2">🛠 Admin Paneli</a>
+        {% endif %}
         <h2 class="text-center">📦 Ürün Fiyat Paneli</h2>
 
         <!-- Dosya Yükleme Formu -->
