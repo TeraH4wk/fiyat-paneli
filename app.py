@@ -34,24 +34,28 @@ def kullanici_dogrula(kullanici, sifre):
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin_panel():
-    if session.get("giris") and session.get("kullanici") == os.getenv("PANEL_KULLANICI"):
-        if request.method == "POST":
-            yeni_kullanici = request.form.get("yeni_kullanici")
-            yeni_sifre = request.form.get("yeni_sifre")
-
-            with open(KULLANICI_DOSYA_YOLU, "r") as f:
-                veriler = json.load(f)
-
-            veriler.append({"kullanici": yeni_kullanici, "sifre": yeni_sifre})
-
-            with open(KULLANICI_DOSYA_YOLU, "w") as f:
-                json.dump(veriler, f)
-
-            flash("✅ Yeni kullanıcı eklendi", "success")
-
-        return render_template("admin.html")
-    else:
+    if not session.get("giris") or session.get("kullanici") != os.getenv("PANEL_KULLANICI"):
         return redirect(url_for("login"))
+
+    with open(KULLANICI_DOSYA_YOLU, "r") as f:
+        kullanicilar = json.load(f)
+
+    if request.method == "POST":
+        yeni_kullanici = request.form.get("yeni_kullanici")
+        yeni_sifre = request.form.get("yeni_sifre")
+
+        if yeni_kullanici and yeni_sifre:
+            kullanicilar.append({"kullanici": yeni_kullanici, "sifre": yeni_sifre})
+            with open(KULLANICI_DOSYA_YOLU, "w") as f:
+                json.dump(kullanicilar, f)
+            flash("✅ Yeni kullanıcı eklendi!", "success")
+        else:
+            flash("❌ Boş alan bırakılamaz.", "danger")
+
+        return redirect(url_for("admin_panel"))
+
+    return render_template("admin.html", kullanicilar=kullanicilar)
+
 
 
 @app.route("/", methods=["GET"])
