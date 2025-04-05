@@ -47,7 +47,6 @@ def admin_panel():
         flash("Yeni kullanıcı eklendi", "success")
         return redirect(url_for("admin_panel"))
 
-    # GET: Kullanıcıları oku ve sayfaya yolla
     with open(KULLANICI_DOSYA_YOLU, "r") as f:
         kullanicilar = json.load(f)
 
@@ -64,8 +63,15 @@ def index():
         df["KDV Dahil Net Alış"] = df["KDV Dahil Net Alış"].replace("₺", "", regex=True).replace(",", ".", regex=True).astype(float)
         df["%5 Kâr"] = (df["KDV Dahil Net Alış"] * 1.05).round(2).astype(str) + " ₺"
         df["%10 Kâr"] = (df["KDV Dahil Net Alış"] * 1.10).round(2).astype(str) + " ₺"
-        veriler = df.to_dict(orient="records")
 
+        kullanici = session.get("kullanici")
+
+        if kullanici == "konak":
+            izinli_sutunlar = ["Ürün Adı", "%10 Kâr"]
+            mevcut_sutunlar = [s for s in izinli_sutunlar if s in df.columns]
+            df = df[mevcut_sutunlar]
+
+        veriler = df.to_dict(orient="records")
         return render_template("index.html", urunler=veriler)
 
     except Exception as e:
@@ -125,6 +131,7 @@ def yukle():
         flash("❌ Hatalı dosya türü. Lütfen .xlsx yükleyin.", "danger")
 
     return redirect(url_for("index"))
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
