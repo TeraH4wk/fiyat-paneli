@@ -70,6 +70,12 @@ def index():
         df["KDV Dahil Net Alış"] = df["KDV Dahil Net Alış"].replace("₺", "", regex=True).replace(",", ".", regex=True).astype(float)
         df["%5 Kâr"] = (df["KDV Dahil Net Alış"] * 1.05).round(2).astype(str) + " ₺"
         df["%10 Kâr"] = (df["KDV Dahil Net Alış"] * 1.10).round(2).astype(str) + " ₺"
+
+        # Arama filtresi uygula
+        arama = request.args.get("arama", "").lower()
+        if arama:
+            df = df[df.apply(lambda row: row.astype(str).str.lower().str.contains(arama).any(), axis=1)]
+
         veriler = df.to_dict(orient="records")
 
         # Sayfalandırma
@@ -80,7 +86,7 @@ def index():
         sayfa_verileri = veriler[basla:bitir]
         toplam_sayfa = (len(veriler) + sayfa_basi - 1) // sayfa_basi
 
-        return render_template("index.html", urunler=sayfa_verileri, sayfa=sayfa, toplam_sayfa=toplam_sayfa)
+        return render_template("index.html", urunler=sayfa_verileri, sayfa=sayfa, toplam_sayfa=toplam_sayfa, arama=arama)
 
     except Exception as e:
         return f"Hata oluştu: {e}"
