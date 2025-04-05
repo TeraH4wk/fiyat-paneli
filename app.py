@@ -28,7 +28,16 @@ def index():
 
     try:
         df = pd.read_excel("urunler.xlsx")
+
+        # KDV Dahil Net Alış sütununu float’a çevir
+        df["KDV Dahil Net Alış"] = df["KDV Dahil Net Alış"].replace("₺", "", regex=True).replace(",", ".", regex=True).astype(float)
+
+        # Yeni sütunları hesapla
+        df["%5 Kâr"] = (df["KDV Dahil Net Alış"] * 1.05).round(2).astype(str) + " ₺"
+        df["%10 Kâr"] = (df["KDV Dahil Net Alış"] * 1.10).round(2).astype(str) + " ₺"
+
         veriler = df.to_dict(orient="records")
+
         return render_template("index.html", urunler=veriler)
     except Exception as e:
         return f"Hata oluştu: {e}"
