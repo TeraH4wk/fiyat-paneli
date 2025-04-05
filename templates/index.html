@@ -51,6 +51,11 @@
         {% if session['kullanici'] == 'admin' %}
             <a href="/admin" class="btn btn-warning float-end mb-2">🛠 Admin Paneli</a>
         {% endif %}
+
+        <div class="text-end mb-3">
+            <a href="/logout" class="btn btn-outline-danger">🚪 Çıkış Yap</a>
+        </div>
+        
         <h2 class="text-center">📦 Ürün Fiyat Paneli</h2>
 
         <!-- Dosya Yükleme Formu -->
@@ -58,6 +63,7 @@
             <input type="file" name="dosya" accept=".xlsx" class="form-control">
             <button type="submit" class="btn btn-success"><i class="fas fa-upload"></i> Dosyayı Yükle</button>
         </form>
+          
 
         <!-- Flash Mesajlar -->
         {% with messages = get_flashed_messages(with_categories=true) %}
