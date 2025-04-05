@@ -62,12 +62,13 @@ def index():
         df = pd.read_excel("urunler.xlsx")
         df["KDV Dahil Net Alış"] = df["KDV Dahil Net Alış"].replace("₺", "", regex=True).replace(",", ".", regex=True).astype(float)
         df["%5 Kâr"] = (df["KDV Dahil Net Alış"] * 1.05).round(2).astype(str) + " ₺"
-        df["%10 Kâr"] = (df["KDV Dahil Net Alış"] * 1.10).round(2).astype(str) + " ₺"
+        df["Satış Fiyatı"] = (df["KDV Dahil Net Alış"] * 1.10).round(2).astype(str) + " ₺"
+
 
         kullanici = session.get("kullanici")
 
         if kullanici == "konak":
-            izinli_sutunlar = ["Ürün Adı", "%10 Kâr"]
+            izinli_sutunlar = ["Ürün Adı", "Satış Fiyatı"]
             mevcut_sutunlar = [s for s in izinli_sutunlar if s in df.columns]
             df = df[mevcut_sutunlar]
 
