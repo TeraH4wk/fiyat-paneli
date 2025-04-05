@@ -40,7 +40,10 @@
     {% endwith %}
 
     <!-- Arama -->
-    <input type="text" id="arama" class="form-control mb-4" placeholder="Ürün adında ara...">
+    <form method="get" action="/" class="mb-4">
+      <input type="text" name="arama" class="form-control" placeholder="Ürün adında ara..." value="{{ arama }}">
+    </form>
+    
 
     <!-- Ürün Kartları -->
     <div class="row" id="urunKartlari">
