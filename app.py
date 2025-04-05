@@ -5,7 +5,7 @@ import json
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
-# Ortam değişkenlerini yükle
+# Çevre değişkenlerini yükle
 load_dotenv()
 
 UPLOAD_KLASORU = os.path.dirname(os.path.abspath(__file__))
@@ -14,10 +14,11 @@ KULLANICI_DOSYA_YOLU = os.path.join(UPLOAD_KLASORU, "kullanicilar.json")
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
+# Yanlış girişleri izleme
 YANLIS_GIRIS_SAYISI = {}
 ENGELLENEN_KULLANICILAR = {}
 
-# Eğer kullanıcı dosyası yoksa admin'i yaz
+# Varsayılan admin kullanıcısı
 if not os.path.exists(KULLANICI_DOSYA_YOLU):
     with open(KULLANICI_DOSYA_YOLU, "w") as f:
         json.dump([{"kullanici": os.getenv("PANEL_KULLANICI"), "sifre": os.getenv("PANEL_SIFRE")}], f)
@@ -34,28 +35,29 @@ def kullanici_dogrula(kullanici, sifre):
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin_panel():
-    if not session.get("giris") or session.get("kullanici") != os.getenv("PANEL_KULLANICI"):
+    if not (session.get("giris") and session.get("kullanici") == os.getenv("PANEL_KULLANICI")):
         return redirect(url_for("login"))
-
-    with open(KULLANICI_DOSYA_YOLU, "r") as f:
-        kullanicilar = json.load(f)
 
     if request.method == "POST":
         yeni_kullanici = request.form.get("yeni_kullanici")
         yeni_sifre = request.form.get("yeni_sifre")
 
-        if yeni_kullanici and yeni_sifre:
-            kullanicilar.append({"kullanici": yeni_kullanici, "sifre": yeni_sifre})
-            with open(KULLANICI_DOSYA_YOLU, "w") as f:
-                json.dump(kullanicilar, f)
-            flash("✅ Yeni kullanıcı eklendi!", "success")
-        else:
-            flash("❌ Boş alan bırakılamaz.", "danger")
+        with open(KULLANICI_DOSYA_YOLU, "r") as f:
+            veriler = json.load(f)
 
+        veriler.append({"kullanici": yeni_kullanici, "sifre": yeni_sifre})
+
+        with open(KULLANICI_DOSYA_YOLU, "w") as f:
+            json.dump(veriler, f)
+
+        flash("Yeni kullanıcı eklendi", "success")
         return redirect(url_for("admin_panel"))
 
-    return render_template("admin.html", kullanicilar=kullanicilar)
+    # GET: Kullanıcıları oku ve sayfaya yolla
+    with open(KULLANICI_DOSYA_YOLU, "r") as f:
+        kullanicilar = json.load(f)
 
+    return render_template("admin.html", kullanicilar=kullanicilar)
 
 
 @app.route("/", methods=["GET"])
