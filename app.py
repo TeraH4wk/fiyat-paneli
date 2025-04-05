@@ -18,12 +18,6 @@ app.secret_key = os.getenv("SECRET_KEY")
 YANLIS_GIRIS_SAYISI = {}
 ENGELLENEN_KULLANICILAR = {}
 
-# Varsayılan admin kullanıcısı
-if not os.path.exists(KULLANICI_DOSYA_YOLU):
-    with open(KULLANICI_DOSYA_YOLU, "w") as f:
-        json.dump([{"kullanici": os.getenv("PANEL_KULLANICI"), "sifre": os.getenv("PANEL_SIFRE")}], f)
-
-
 def kullanici_dogrula(kullanici, sifre):
     with open(KULLANICI_DOSYA_YOLU, "r") as f:
         veriler = json.load(f)
