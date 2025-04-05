@@ -118,17 +118,17 @@ def logout():
 
 @app.route("/yukle", methods=["POST"])
 def yukle():
-    if "giris" not in session:
+    if "giris" not in session or session.get("kullanici") != os.getenv("PANEL_KULLANICI"):
         return redirect(url_for("login"))
 
     dosya = request.files.get("dosya")
     if dosya and dosya.filename.endswith(".xlsx"):
         dosya.save(os.path.join(UPLOAD_KLASORU, "urunler.xlsx"))
-        flash("Dosya yüklendi", "success")
+        flash("✅ Dosya başarıyla yüklendi!", "success")
     else:
-        flash("Hatalı dosya. Lütfen .xlsx yükleyin", "danger")
-    return redirect(url_for("index"))
+        flash("❌ Hatalı dosya türü. Lütfen .xlsx yükleyin.", "danger")
 
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
