@@ -15,10 +15,14 @@
 <body>
 <div class="container">
 
-    <h2 class="text-center mb-4">📦 Ürün Fiyat Paneli</h2>
+    <h2 class="text-center">📦 Ürün Fiyat Paneli</h2>
+
+    {% if session.get('kullanici') == 'admin' %}
+        <a href="/admin" class="btn btn-warning mb-3">⚙️ Admin Paneli</a>
+    {% endif %}
 
     <!-- Dosya Yükleme Butonu (Sadece Admin Görür) -->
-    {% if session['kullanici'] == 'admin' %}
+    {% if session.get('kullanici') == 'admin' %}
     <form action="/yukle" method="post" enctype="multipart/form-data" class="d-flex gap-2 mb-4">
         <input type="file" name="dosya" accept=".xlsx" class="form-control">
         <button type="submit" class="btn btn-primary">📤 Dosyayı Yükle</button>
